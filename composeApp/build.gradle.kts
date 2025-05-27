@@ -55,6 +55,8 @@ kotlin {
             api(libs.permissions)
             api(libs.permissions.compose)
             implementation(libs.permissions.microphone)
+            implementation(libs.konnectivity)
+            implementation(libs.cmptoast)
         }
 
         commonTest.dependencies {

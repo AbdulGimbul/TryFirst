@@ -17,6 +17,8 @@ kotlinx-datetime = "0.6.2"
 buildkonfig="0.17.1"
 permissionsCompose = "0.19.1"
 core-splashscreen = "1.0.1"
+konnectivity = "0.1-alpha01"
+cmptoast = "1.0.5"
 
 [libraries]
 
@@ -24,6 +26,8 @@ androidx-activityCompose = { module = "androidx.activity:activity-compose", vers
 androidx-uitest-testManifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-uiTest" }
 androidx-uitest-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "androidx-uiTest" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+konnectivity = { module = "com.plusmobileapps:konnectivity", version.ref = "konnectivity" }
+cmptoast = { module = "network.chaintech:cmptoast", version.ref = "cmptoast" }
 generativeai-google = { module = "dev.shreyaspatil.generativeai:generativeai-google", version.ref = "generativeaiGoogle" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

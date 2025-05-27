@@ -8,6 +8,7 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        multiplatform.network.cmptoast.AppContext.apply { set(applicationContext) }
         initKoin {
             androidContext(this@MyApplication)
         }

@@ -3,6 +3,7 @@ package dev.abdl.tryfirst
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,12 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import multiplatform.network.cmptoast.showToast
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import tryfirst.composeapp.generated.resources.Res
@@ -85,17 +88,38 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
         ) {
             RecordButton(
                 appState = viewModel.appState,
-                onStartCycle = { viewModel.startRecognitionCycle(permissionsController) },
+                onStartCycle = {
+                    if (!viewModel.connectivity.isConnected) {
+                        showToast(
+                            message = "Ups! there's no internet connection",
+                            backgroundColor = Color.Red
+                        )
+                    } else {
+                        viewModel.startRecognitionCycle(permissionsController)
+                    }
+                },
                 onStopRecording = { viewModel.stopListeningAndProcess() }
             )
 
             val uriHandler = LocalUriHandler.current
-            TextButton(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    .widthIn(min = 200.dp),
-                onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(Res.string.open_github))
+                TextButton(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        .widthIn(min = 200.dp),
+                    onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
+                ) {
+                    Text(stringResource(Res.string.open_github))
+                }
+                TextButton(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        .widthIn(min = 200.dp),
+                    onClick = { uriHandler.openUri("https://abdl97.tusk.page") },
+                ) {
+                    Text("Give me feedback!")
+                }
             }
         }
     }

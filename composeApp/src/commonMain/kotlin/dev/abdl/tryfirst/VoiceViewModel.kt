@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.plusmobileapps.konnectivity.Konnectivity
 import dev.abdl.tryfirst.service.GeminiService
 import dev.abdl.tryfirst.service.SpeechToTextService
 import dev.abdl.tryfirst.service.TextToSpeechService
@@ -38,6 +39,9 @@ class VoiceViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
     var selectedLanguage by mutableStateOf(InputLanguage.ENGLISH)
+    var connectivity by mutableStateOf(Konnectivity())
+        private set
+
 
     fun startRecognitionCycle(permissionsController: PermissionsController) {
         appState = AppState.REQUESTING_PERMISSION
@@ -70,7 +74,7 @@ class VoiceViewModel(
             languageCode = selectedLanguage.code,
             onResult = { text, isFinal ->
                 transcribedText = text
-                       },
+            },
             onError = { error ->
                 errorMessage = "STT Error: $error"
                 appState = AppState.ERROR
@@ -119,7 +123,8 @@ class VoiceViewModel(
 
     private fun speakProcessedText() {
         if (processedText.isBlank() || !textToSpeechService.isAvailable()) {
-            errorMessage = if (processedText.isBlank()) "Nothing to speak." else "Text-to-speech is not available."
+            errorMessage =
+                if (processedText.isBlank()) "Nothing to speak." else "Text-to-speech is not available."
             appState = if (appState != AppState.ERROR) AppState.IDLE else AppState.ERROR
             return
         }
@@ -127,7 +132,7 @@ class VoiceViewModel(
         textToSpeechService.speak(
             text = processedText,
             languageCode = "en-US",
-            onStart = {  },
+            onStart = { },
             onDone = { appState = AppState.IDLE },
             onError = { error ->
                 errorMessage = "TTS Error: $error"
