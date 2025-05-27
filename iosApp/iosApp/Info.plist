@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	    <key>NSMicrophoneUsageDescription</key>
+        <string>This app uses the microphone to capture your voice for narration and translation.</string>
+        <key>NSSpeechRecognitionUsageDescription</key>
+        <string>This app uses speech recognition to convert your voice into text for processing.</string>
+        </dict>
+</dict>
+</plist>
