@@ -2,6 +2,7 @@ package dev.abdl.tryfirst.di
 
 import dev.abdl.tryfirst.service.SpeechToTextService
 import dev.abdl.tryfirst.service.TextToSpeechService
+import dev.icerock.moko.permissions.ios.PermissionsController
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

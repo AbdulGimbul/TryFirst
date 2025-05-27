@@ -8,9 +8,7 @@ import org.koin.dsl.module
 
 actual val platformModule: Module
     get() = module {
-        // Provide AndroidSpeechToTextService as the implementation for SpeechToTextService
         single<SpeechToTextService> { SpeechToTextService(androidContext()) }
 
-        // Provide AndroidTextToSpeechService as the implementation for TextToSpeechService
         single<TextToSpeechService> { TextToSpeechService(androidContext()) }
     }

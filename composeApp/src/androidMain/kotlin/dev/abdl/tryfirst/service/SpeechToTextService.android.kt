@@ -21,11 +21,11 @@ actual class SpeechToTextService(private val context: Context) {
         onError: (String) -> Unit,
         onEndOfSpeech: () -> Unit
     ) {
+        // Permission is assumed to be granted by the ViewModel using Moko Permissions
         if (!isAvailable()) {
             onError("Speech recognition not available.")
             return
         }
-
         onResultCallback = onResult
         onErrorCallback = onError
         onEndOfSpeechCallback = onEndOfSpeech
@@ -36,15 +36,12 @@ actual class SpeechToTextService(private val context: Context) {
                 override fun onBeginningOfSpeech() {}
                 override fun onRmsChanged(rmsdB: Float) {}
                 override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() {
-                    onEndOfSpeechCallback?.invoke()
-                }
-
+                override fun onEndOfSpeech() { onEndOfSpeechCallback?.invoke() }
                 override fun onError(error: Int) {
                     val errorMessage = when (error) {
                         SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
                         SpeechRecognizer.ERROR_CLIENT -> "Client side error"
-                        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+                        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions (STT internal)"
                         SpeechRecognizer.ERROR_NETWORK -> "Network error"
                         SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
                         SpeechRecognizer.ERROR_NO_MATCH -> "No speech match"
@@ -59,16 +56,16 @@ actual class SpeechToTextService(private val context: Context) {
                 override fun onResults(results: Bundle?) {
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
-                        onResultCallback?.invoke(matches[0], true) // true for isFinal
+                        onResultCallback?.invoke(matches[0], true)
                     } else {
-                        onResultCallback?.invoke("", true) // No result, but consider it final for this attempt
+                        onResultCallback?.invoke("", true)
                     }
                 }
 
                 override fun onPartialResults(partialResults: Bundle?) {
                     val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
-                        onResultCallback?.invoke(matches[0], false) // false for isFinal
+                        onResultCallback?.invoke(matches[0], false)
                     }
                 }
 
@@ -78,20 +75,11 @@ actual class SpeechToTextService(private val context: Context) {
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode) // e.g., "en-US" or "id-ID"
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
         speechRecognizer?.startListening(intent)
     }
-
-    actual fun stopListening() {
-        speechRecognizer?.stopListening()
-        // speechRecognizer?.destroy() // Or destroy here if you create a new one each time
-    }
-
-    // Consider adding a destroy method to call from ViewModel's onCleared
-    fun destroy() {
-        speechRecognizer?.destroy()
-        speechRecognizer = null
-    }
+    actual fun stopListening() { speechRecognizer?.stopListening() }
+    fun destroy() { speechRecognizer?.destroy(); speechRecognizer = null }
 }

@@ -15,6 +15,7 @@ kotlinx-serialization = "1.8.1"
 koin = "4.0.4"
 kotlinx-datetime = "0.6.2"
 buildkonfig="0.17.1"
+permissionsCompose = "0.19.1"
 
 [libraries]
 
@@ -47,6 +48,9 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+permissions = { module = "dev.icerock.moko:permissions", version.ref = "permissionsCompose" }
+permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
+permissions-microphone = { module = "dev.icerock.moko:permissions-microphone", version.ref = "permissionsCompose" }
 
 [plugins]
 

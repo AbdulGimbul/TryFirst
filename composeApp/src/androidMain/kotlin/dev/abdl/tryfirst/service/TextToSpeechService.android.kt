@@ -38,7 +38,6 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
                     onErrorCallback?.invoke("TTS Error with code: $errorCode")
                 }
             })
-            // If there was a pending text, speak it now
             pendingText?.let { text ->
                 pendingLanguageCode?.let { langCode ->
                     speakInternal(text, langCode)
@@ -52,7 +51,7 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
         }
     }
 
-    actual fun isAvailable(): Boolean = true // Android TTS is generally available
+    actual fun isAvailable(): Boolean = true
 
     actual fun speak(
         text: String,
@@ -68,10 +67,8 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
         if (isTtsInitialized) {
             speakInternal(text, languageCode)
         } else {
-            // TTS not yet initialized, store text and speak it in onInit
             pendingText = text
             pendingLanguageCode = languageCode
-            // If TTS object is null (failed to create), report error
             if (tts == null) {
                 onError("TTS service could not be created.")
             }
@@ -79,7 +76,7 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
     }
 
     private fun speakInternal(text: String, languageCode: String) {
-        val locale = Locale.forLanguageTag(languageCode) // e.g., "en-US"
+        val locale = Locale.forLanguageTag(languageCode)
         val result = tts?.setLanguage(locale)
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             onErrorCallback?.invoke("Language $languageCode not supported by TTS.")
@@ -92,12 +89,5 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
 
     actual fun stop() {
         tts?.stop()
-    }
-
-    // Call this when the service is no longer needed (e.g. ViewModel onCleared)
-    fun shutdown() {
-        tts?.stop()
-        tts?.shutdown()
-        isTtsInitialized = false
     }
 }

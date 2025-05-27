@@ -8,11 +8,5 @@ fun MainViewController(): UIViewController = ComposeUIViewController(
         initKoin()
     }
 ) {
-
-//     val speechToTextService = IosSpeechToTextService()
-//     val textToSpeechService = IosTextToSpeechService()
-//     val geminiService = GeminiService(apiKey = GEMINI_API_KEY) // Securely provide API key
-//     val viewModel = rememberVoiceViewModel(speechToTextService, textToSpeechService, geminiService)
     App()
-
 }

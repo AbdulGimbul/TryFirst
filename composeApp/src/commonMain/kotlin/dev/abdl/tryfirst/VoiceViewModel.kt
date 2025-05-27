@@ -8,10 +8,14 @@ import androidx.lifecycle.viewModelScope
 import dev.abdl.tryfirst.service.GeminiService
 import dev.abdl.tryfirst.service.SpeechToTextService
 import dev.abdl.tryfirst.service.TextToSpeechService
+import dev.icerock.moko.permissions.DeniedException
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.microphone.RECORD_AUDIO
 import kotlinx.coroutines.launch
 
 enum class AppState {
-    IDLE, LISTENING, PROCESSING, SPEAKING, ERROR
+    IDLE, REQUESTING_PERMISSION, LISTENING, PROCESSING, SPEAKING, ERROR
 }
 
 enum class InputLanguage(val code: String, val displayName: String) {
@@ -22,25 +26,37 @@ enum class InputLanguage(val code: String, val displayName: String) {
 class VoiceViewModel(
     private val speechToTextService: SpeechToTextService,
     private val textToSpeechService: TextToSpeechService,
-    private val geminiService: GeminiService
+    private val geminiService: GeminiService,
 ) : ViewModel() {
 
     var appState by mutableStateOf(AppState.IDLE)
         private set
-
     var transcribedText by mutableStateOf("")
         private set
-
     var processedText by mutableStateOf("")
         private set
-
     var errorMessage by mutableStateOf<String?>(null)
         private set
-
     var selectedLanguage by mutableStateOf(InputLanguage.ENGLISH)
 
+    fun startRecognitionCycle(permissionsController: PermissionsController) {
+        appState = AppState.REQUESTING_PERMISSION
+        errorMessage = null
+        viewModelScope.launch {
+            try {
+                permissionsController.providePermission(Permission.RECORD_AUDIO)
+                startActualListening()
+            } catch (e: DeniedException) {
+                errorMessage = "Microphone permission denied. Please grant it in app settings."
+                appState = AppState.ERROR
+            } catch (e: Exception) {
+                errorMessage = "Permission request failed: ${e.message}"
+                appState = AppState.ERROR
+            }
+        }
+    }
 
-    fun startListening() {
+    private fun startActualListening() {
         if (!speechToTextService.isAvailable()) {
             errorMessage = "Speech recognition is not available on this device."
             appState = AppState.ERROR
@@ -49,33 +65,20 @@ class VoiceViewModel(
         appState = AppState.LISTENING
         transcribedText = ""
         processedText = ""
-        errorMessage = null
 
         speechToTextService.startListening(
             languageCode = selectedLanguage.code,
             onResult = { text, isFinal ->
                 transcribedText = text
-                if (isFinal) {
-                    // Some STT services might call onResult multiple times with isFinal=true
-                    // or might have a separate onEndOfSpeech. Adjust logic as needed.
-                    // For simplicity, we process when isFinal is true.
-                    // If onEndOfSpeech is more reliable for your chosen STT, use that.
-                    // stopListening() // Stop explicitly if not stopped by onEndOfSpeech
-                    // processTranscribedText()
-                }
-            },
+                       },
             onError = { error ->
                 errorMessage = "STT Error: $error"
                 appState = AppState.ERROR
-                // Consider if stopListening should be called here
             },
             onEndOfSpeech = {
-                // This is often a better place to trigger processing
                 if (transcribedText.isNotBlank() && appState == AppState.LISTENING) {
-                    // Ensure we only process if we were actively listening and got some text
                     processTranscribedText()
                 } else if (appState == AppState.LISTENING) {
-                    // No speech detected or transcribed text is empty
                     appState = AppState.IDLE
                 }
             }
@@ -84,20 +87,14 @@ class VoiceViewModel(
 
     fun stopListeningAndProcess() {
         if (appState == AppState.LISTENING) {
-            speechToTextService.stopListening() // This should ideally trigger onEndOfSpeech or a final result
-            // If stopListening itself doesn't trigger a final callback with text,
-            // you might need to process with the current `transcribedText` if it's not blank.
-            // This depends heavily on the STT implementation.
-            // For now, we assume onEndOfSpeech or a final onResult handles processing.
-            // If transcribedText is populated but onEndOfSpeech wasn't called, call process.
-            if (transcribedText.isNotBlank()) {
+            speechToTextService.stopListening()
+            if (transcribedText.isNotBlank() && appState != AppState.PROCESSING) {
                 processTranscribedText()
-            } else {
+            } else if (appState != AppState.PROCESSING) {
                 appState = AppState.IDLE
             }
         }
     }
-
 
     private fun processTranscribedText() {
         if (transcribedText.isBlank()) {
@@ -105,7 +102,7 @@ class VoiceViewModel(
             return
         }
         appState = AppState.PROCESSING
-        viewModelScope.launch { // Use viewModelScope from moko-mvvm or lifecycle-viewmodel-ktx
+        viewModelScope.launch {
             val result = geminiService.processNarration(transcribedText, selectedLanguage.code)
             result.fold(
                 onSuccess = { refinedOrTranslatedText ->
@@ -127,11 +124,10 @@ class VoiceViewModel(
             return
         }
         appState = AppState.SPEAKING
-        // Output is always English after Gemini processing
         textToSpeechService.speak(
             text = processedText,
-            languageCode = "en-US", // Output is always English
-            onStart = { /* Potentially update UI */ },
+            languageCode = "en-US",
+            onStart = {  },
             onDone = { appState = AppState.IDLE },
             onError = { error ->
                 errorMessage = "TTS Error: $error"
@@ -142,16 +138,15 @@ class VoiceViewModel(
 
     fun onLanguageSelected(language: InputLanguage) {
         selectedLanguage = language
-        if (appState == AppState.LISTENING) { // If listening, stop and restart with new lang
+        if (appState == AppState.LISTENING) {
             speechToTextService.stopListening()
-            startListening()
+            appState = AppState.IDLE
         }
     }
 
-    // Call this when the ViewModel is cleared to release resources
-    public override fun onCleared() { // For moko-mvvm ViewModel
+    public override fun onCleared() {
         super.onCleared()
-        speechToTextService.stopListening() // Ensure STT is stopped
-        textToSpeechService.stop()      // Ensure TTS is stopped
+        speechToTextService.stopListening()
+        textToSpeechService.stop()
     }
 }

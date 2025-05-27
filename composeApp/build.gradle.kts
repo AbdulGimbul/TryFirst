@@ -52,6 +52,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.generativeai.google)
             implementation(libs.koin.compose.viewmodel)
+            api(libs.permissions)
+            api(libs.permissions.compose)
+            implementation(libs.permissions.microphone)
         }
 
         commonTest.dependencies {
