@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
@@ -18,9 +17,10 @@
         android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="TryFirst"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:theme="@style/Theme.App.Splash">
         <activity
             android:name=".AppActivity"
+            android:theme="@style/Theme.App.Splash"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustPan"

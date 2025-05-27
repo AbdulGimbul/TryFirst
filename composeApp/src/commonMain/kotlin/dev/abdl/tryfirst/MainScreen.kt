@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.compose.BindEffect
@@ -38,16 +39,24 @@ import tryfirst.composeapp.generated.resources.open_github
 @Composable
 fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
     val permissionsControllerFactory = rememberPermissionsControllerFactory()
-    val permissionsController: PermissionsController = remember { permissionsControllerFactory.createPermissionsController() }
+    val permissionsController: PermissionsController =
+        remember { permissionsControllerFactory.createPermissionsController() }
     BindEffect(permissionsController)
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp).navigationBarsPadding().statusBarsPadding(),
+        modifier = Modifier.fillMaxSize().padding(16.dp).navigationBarsPadding()
+            .statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Try First: Your English Speaking Journey!", style = MaterialTheme.typography.headlineSmall)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                "Try First:\nYour English Speaking Journey!",
+                style = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center)
+            )
 
             LanguageSelector(
                 selectedLanguage = viewModel.selectedLanguage,
@@ -70,18 +79,24 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
             }
         }
 
-        RecordButton(
-            appState = viewModel.appState,
-            onStartCycle = { viewModel.startRecognitionCycle(permissionsController) },
-            onStopRecording = { viewModel.stopListeningAndProcess() }
-        )
-
-        val uriHandler = LocalUriHandler.current
-        TextButton(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).widthIn(min = 200.dp),
-            onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(stringResource(Res.string.open_github))
+            RecordButton(
+                appState = viewModel.appState,
+                onStartCycle = { viewModel.startRecognitionCycle(permissionsController) },
+                onStopRecording = { viewModel.stopListeningAndProcess() }
+            )
+
+            val uriHandler = LocalUriHandler.current
+            TextButton(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    .widthIn(min = 200.dp),
+                onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
+            ) {
+                Text(stringResource(Res.string.open_github))
+            }
         }
     }
 }
@@ -95,7 +110,7 @@ fun LanguageSelector(
     var expanded by remember { mutableStateOf(false) }
     Box {
         OutlinedButton(onClick = { expanded = true }, enabled = isEnabled) {
-            Text("Language: ${selectedLanguage.displayName}")
+            Text("Speak with: ${selectedLanguage.displayName}")
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             InputLanguage.values().forEach { language ->

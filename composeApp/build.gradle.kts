@@ -71,6 +71,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.core.splashscreen)
         }
 
         iosMain.dependencies {
