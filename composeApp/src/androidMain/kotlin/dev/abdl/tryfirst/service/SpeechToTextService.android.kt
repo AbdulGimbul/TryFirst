@@ -36,7 +36,10 @@ actual class SpeechToTextService(private val context: Context) {
                 override fun onBeginningOfSpeech() {}
                 override fun onRmsChanged(rmsdB: Float) {}
                 override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() { onEndOfSpeechCallback?.invoke() }
+                override fun onEndOfSpeech() {
+                    onEndOfSpeechCallback?.invoke()
+                }
+
                 override fun onError(error: Int) {
                     val errorMessage = when (error) {
                         SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
@@ -63,7 +66,8 @@ actual class SpeechToTextService(private val context: Context) {
                 }
 
                 override fun onPartialResults(partialResults: Bundle?) {
-                    val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                    val matches =
+                        partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     if (!matches.isNullOrEmpty()) {
                         onResultCallback?.invoke(matches[0], false)
                     }
@@ -74,12 +78,21 @@ actual class SpeechToTextService(private val context: Context) {
         }
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, languageCode)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
         speechRecognizer?.startListening(intent)
     }
-    actual fun stopListening() { speechRecognizer?.stopListening() }
-    fun destroy() { speechRecognizer?.destroy(); speechRecognizer = null }
+
+    actual fun stopListening() {
+        speechRecognizer?.stopListening()
+    }
+
+    fun destroy() {
+        speechRecognizer?.destroy(); speechRecognizer = null
+    }
 }

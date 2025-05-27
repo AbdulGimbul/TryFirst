@@ -9,6 +9,7 @@ expect class TextToSpeechService {
         onDone: () -> Unit,
         onError: (error: String) -> Unit
     )
+
     fun stop()
     fun isAvailable(): Boolean
 }

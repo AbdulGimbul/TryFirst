@@ -22,11 +22,11 @@
         tools:replace="android:name">
         <activity
             android:name=".AppActivity"
-            android:theme="@style/Theme.App.Splash"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="true"
             android:launchMode="singleInstance"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="true">
+            android:theme="@style/Theme.App.Splash"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

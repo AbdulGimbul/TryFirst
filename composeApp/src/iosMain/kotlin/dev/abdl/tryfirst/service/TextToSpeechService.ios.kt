@@ -28,7 +28,8 @@ actual class TextToSpeechService : NSObject(), AVSpeechSynthesizerDelegateProtoc
 
         try {
             val utterance = AVSpeechUtterance(string = text)
-            utterance.voice = AVSpeechSynthesisVoice.voiceWithLanguage(languageCode) // e.g., "en-US"
+            utterance.voice =
+                AVSpeechSynthesisVoice.voiceWithLanguage(languageCode) // e.g., "en-US"
             // You can adjust rate and pitch if needed:
             // utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9f
             // utterance.pitchMultiplier = 1.0f
@@ -49,22 +50,46 @@ actual class TextToSpeechService : NSObject(), AVSpeechSynthesizerDelegateProtoc
     }
 
     // AVSpeechSynthesizerDelegate methods
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, didStartSpeechUtterance: AVSpeechUtterance) {
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        didStartSpeechUtterance: AVSpeechUtterance
+    ) {
         onStartCallback?.invoke()
     }
 
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, didFinishSpeechUtterance: AVSpeechUtterance) {
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        didFinishSpeechUtterance: AVSpeechUtterance
+    ) {
         onDoneCallback?.invoke()
     }
 
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, didCancelSpeechUtterance: AVSpeechUtterance) {
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        didCancelSpeechUtterance: AVSpeechUtterance
+    ) {
         // Treat cancel as done or handle differently if needed
         onDoneCallback?.invoke()
     }
 
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, didPauseSpeechUtterance: AVSpeechUtterance) {}
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, didContinueSpeechUtterance: AVSpeechUtterance) {}
-    override fun speechSynthesizer(synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString: platform.Foundation.NSRange, utterance: AVSpeechUtterance) {}
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        didPauseSpeechUtterance: AVSpeechUtterance
+    ) {
+    }
+
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        didContinueSpeechUtterance: AVSpeechUtterance
+    ) {
+    }
+
+    override fun speechSynthesizer(
+        synthesizer: AVSpeechSynthesizer,
+        willSpeakRangeOfSpeechString: platform.Foundation.NSRange,
+        utterance: AVSpeechUtterance
+    ) {
+    }
 
     // Note: The basic `onError` in the `speak` function handles synchronous errors.
     // For asynchronous errors during speech, AVSpeechSynthesizerDelegate doesn't have a direct `didError` method.

@@ -39,7 +39,11 @@ actual class SpeechToTextService {
 
         val audioSession = platform.AVFAudio.AVAudioSession.sharedInstance()
         try {
-            audioSession.setCategory(platform.AVFAudio.AVAudioSessionCategoryRecord, mode = platform.AVFAudio.AVAudioSessionModeMeasurement, options = platform.AVFAudio.AVAudioSessionCategoryOptionsDuckOthers)
+            audioSession.setCategory(
+                platform.AVFAudio.AVAudioSessionCategoryRecord,
+                mode = platform.AVFAudio.AVAudioSessionModeMeasurement,
+                options = platform.AVFAudio.AVAudioSessionCategoryOptionsDuckOthers
+            )
             audioSession.setActive(true, null)
         } catch (e: Exception) {
             onErrorCallback?.invoke("Audio session setup failed: ${e.message}")

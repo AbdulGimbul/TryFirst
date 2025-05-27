@@ -27,13 +27,16 @@ actual class TextToSpeechService(private val context: Context) : TextToSpeech.On
                 override fun onStart(utteranceId: String?) {
                     onStartCallback?.invoke()
                 }
+
                 override fun onDone(utteranceId: String?) {
                     onDoneCallback?.invoke()
                 }
+
                 @Deprecated("Deprecated in Java")
                 override fun onError(utteranceId: String?) {
                     onErrorCallback?.invoke("TTS Error")
                 }
+
                 override fun onError(utteranceId: String?, errorCode: Int) {
                     onErrorCallback?.invoke("TTS Error with code: $errorCode")
                 }

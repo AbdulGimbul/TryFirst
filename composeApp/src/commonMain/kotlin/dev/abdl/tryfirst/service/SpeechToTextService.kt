@@ -7,6 +7,7 @@ expect class SpeechToTextService {
         onError: (error: String) -> Unit,
         onEndOfSpeech: () -> Unit
     )
+
     fun stopListening()
     fun isAvailable(): Boolean
 }
