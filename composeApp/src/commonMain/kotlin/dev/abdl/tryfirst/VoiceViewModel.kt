@@ -34,8 +34,11 @@ class VoiceViewModel(
         private set
     var transcribedText by mutableStateOf("")
         private set
-    var processedText by mutableStateOf("")
+    var refinedText by mutableStateOf<String?>(null)
         private set
+    var translatedToEnglishText by mutableStateOf<String?>(null)
+        private set
+    var translatedToBahasaText by mutableStateOf<String?>(null)
     var errorMessage by mutableStateOf<String?>(null)
         private set
     var selectedLanguage by mutableStateOf(InputLanguage.ENGLISH)
@@ -60,6 +63,12 @@ class VoiceViewModel(
         }
     }
 
+    private fun clearResultTexts() {
+        refinedText = null
+        translatedToEnglishText = null
+        translatedToBahasaText = null
+    }
+
     private fun startActualListening() {
         if (!speechToTextService.isAvailable()) {
             errorMessage = "Speech recognition is not available on this device."
@@ -68,7 +77,7 @@ class VoiceViewModel(
         }
         appState = AppState.LISTENING
         transcribedText = ""
-        processedText = ""
+        clearResultTexts()
 
         speechToTextService.startListening(
             languageCode = selectedLanguage.code,
@@ -109,9 +118,27 @@ class VoiceViewModel(
         viewModelScope.launch {
             val result = geminiService.processNarration(transcribedText, selectedLanguage.code)
             result.fold(
-                onSuccess = { refinedOrTranslatedText ->
-                    processedText = refinedOrTranslatedText
-                    speakProcessedText()
+                onSuccess = { output ->
+                    var textToSpeak: String? = null
+                    if (selectedLanguage == InputLanguage.ENGLISH) {
+                        refinedText = output.refinedEnglish
+                        translatedToBahasaText = output.translatedToBahasa
+                        textToSpeak = output.refinedEnglish // Speech output remains refined English
+                    } else { // Bahasa Indonesia input
+                        translatedToEnglishText = output.translatedToEnglish
+                        textToSpeak =
+                            output.translatedToEnglish // Speech output is translated English
+                    }
+
+                    if (!textToSpeak.isNullOrBlank()) {
+                        speakText(textToSpeak, "en-US") // Always speak in English for now
+                    } else {
+                        // If textToSpeak is blank (e.g. Gemini returned empty string),
+                        // consider it an error or just go to idle.
+                        // errorMessage = "AI processing returned no output."
+                        // appState = AppState.ERROR
+                        appState = AppState.IDLE // Or handle as no result
+                    }
                 },
                 onFailure = { error ->
                     errorMessage = "Gemini AI Error: ${error.message}"
@@ -121,17 +148,17 @@ class VoiceViewModel(
         }
     }
 
-    private fun speakProcessedText() {
-        if (processedText.isBlank() || !textToSpeechService.isAvailable()) {
+    private fun speakText(text: String, languageCode: String) {
+        if (text.isBlank() || !textToSpeechService.isAvailable()) {
             errorMessage =
-                if (processedText.isBlank()) "Nothing to speak." else "Text-to-speech is not available."
+                if (text.isBlank()) "Nothing to speak." else "Text-to-speech is not available."
             appState = if (appState != AppState.ERROR) AppState.IDLE else AppState.ERROR
             return
         }
         appState = AppState.SPEAKING
         textToSpeechService.speak(
-            text = processedText,
-            languageCode = "en-US",
+            text = text,
+            languageCode = languageCode, // Will be "en-US"
             onStart = { },
             onDone = { appState = AppState.IDLE },
             onError = { error ->
