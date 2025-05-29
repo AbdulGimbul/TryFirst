@@ -74,19 +74,19 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
 
             if (viewModel.selectedLanguage == InputLanguage.ENGLISH) {
                 viewModel.refinedText?.let {
-                    Text("Refined (English):", style = MaterialTheme.typography.titleMedium)
+                    Text("Refined:", style = MaterialTheme.typography.titleMedium)
                     Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
                 }
                 viewModel.translatedToBahasaText?.let {
                     Text(
-                        "Translated (to Bahasa Indonesia):",
+                        "Translated:",
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 viewModel.translatedToEnglishText?.let {
-                    Text("Translated (to English):", style = MaterialTheme.typography.titleMedium)
+                    Text("Translated:", style = MaterialTheme.typography.titleMedium)
                     Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
                 }
             }

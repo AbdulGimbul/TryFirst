@@ -1,13 +1,8 @@
 package dev.abdl.tryfirst.service
 
 import dev.abdl.tryfirst.BuildKonfig
+import dev.abdl.tryfirst.ProcessedOutput
 import dev.shreyaspatil.ai.client.generativeai.GenerativeModel
-
-data class ProcessedOutput(
-    val refinedEnglish: String? = null,
-    val translatedToEnglish: String? = null,
-    val translatedToBahasa: String? = null
-)
 
 class GeminiService {
     private val generativeModel = GenerativeModel(

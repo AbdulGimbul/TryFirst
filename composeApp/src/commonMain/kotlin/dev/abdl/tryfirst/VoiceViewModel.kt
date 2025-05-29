@@ -15,15 +15,6 @@ import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.microphone.RECORD_AUDIO
 import kotlinx.coroutines.launch
 
-enum class AppState {
-    IDLE, REQUESTING_PERMISSION, LISTENING, PROCESSING, SPEAKING, ERROR
-}
-
-enum class InputLanguage(val code: String, val displayName: String) {
-    ENGLISH("en-US", "English"),
-    INDONESIAN("id-ID", "Bahasa Indonesia")
-}
-
 class VoiceViewModel(
     private val speechToTextService: SpeechToTextService,
     private val textToSpeechService: TextToSpeechService,
@@ -123,21 +114,17 @@ class VoiceViewModel(
                     if (selectedLanguage == InputLanguage.ENGLISH) {
                         refinedText = output.refinedEnglish
                         translatedToBahasaText = output.translatedToBahasa
-                        textToSpeak = output.refinedEnglish // Speech output remains refined English
-                    } else { // Bahasa Indonesia input
+                        textToSpeak = output.refinedEnglish
+                    } else {
                         translatedToEnglishText = output.translatedToEnglish
                         textToSpeak =
-                            output.translatedToEnglish // Speech output is translated English
+                            output.translatedToEnglish
                     }
 
                     if (!textToSpeak.isNullOrBlank()) {
-                        speakText(textToSpeak, "en-US") // Always speak in English for now
+                        speakText(textToSpeak, "en-US")
                     } else {
-                        // If textToSpeak is blank (e.g. Gemini returned empty string),
-                        // consider it an error or just go to idle.
-                        // errorMessage = "AI processing returned no output."
-                        // appState = AppState.ERROR
-                        appState = AppState.IDLE // Or handle as no result
+                        appState = AppState.IDLE
                     }
                 },
                 onFailure = { error ->
@@ -158,7 +145,7 @@ class VoiceViewModel(
         appState = AppState.SPEAKING
         textToSpeechService.speak(
             text = text,
-            languageCode = languageCode, // Will be "en-US"
+            languageCode = languageCode,
             onStart = { },
             onDone = { appState = AppState.IDLE },
             onError = { error ->
