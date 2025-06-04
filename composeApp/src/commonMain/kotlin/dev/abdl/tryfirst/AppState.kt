@@ -9,6 +9,10 @@ enum class InputLanguage(val code: String, val displayName: String) {
     INDONESIAN("id-ID", "Bahasa Indonesia")
 }
 
+enum class InputMode {
+    SPEAK, TEXT
+}
+
 data class ProcessedOutput(
     val refinedEnglish: String? = null,
     val translatedToEnglish: String? = null,

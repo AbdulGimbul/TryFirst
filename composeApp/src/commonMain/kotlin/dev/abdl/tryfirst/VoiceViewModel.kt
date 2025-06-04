@@ -36,20 +36,42 @@ class VoiceViewModel(
     var connectivity by mutableStateOf(Konnectivity())
         private set
 
+    var inputMode by mutableStateOf(InputMode.SPEAK)
+        private set
+    var manualInputText by mutableStateOf("")
+        private set
 
-    fun startRecognitionCycle(permissionsController: PermissionsController) {
-        appState = AppState.REQUESTING_PERMISSION
+    fun handleProcessAction(permissionsController: PermissionsController) {
+
+        clearResultTexts()
         errorMessage = null
-        viewModelScope.launch {
-            try {
-                permissionsController.providePermission(Permission.RECORD_AUDIO)
-                startActualListening()
-            } catch (e: DeniedException) {
-                errorMessage = "Microphone permission denied. Please grant it in app settings."
-                appState = AppState.ERROR
-            } catch (e: Exception) {
-                errorMessage = "Permission request failed: ${e.message}"
-                appState = AppState.ERROR
+
+        when (inputMode) {
+            InputMode.SPEAK -> {
+                appState = AppState.REQUESTING_PERMISSION
+                viewModelScope.launch {
+                    try {
+                        permissionsController.providePermission(Permission.RECORD_AUDIO)
+                        startActualListening()
+                    } catch (e: DeniedException) {
+                        errorMessage =
+                            "Microphone permission denied. Please grant it in app settings."
+                        appState = AppState.ERROR
+                    } catch (e: Exception) {
+                        errorMessage = "Permission request failed: ${e.message}"
+                        appState = AppState.ERROR
+                    }
+                }
+            }
+
+            InputMode.TEXT -> {
+                if (manualInputText.isNotBlank()) {
+                    transcribedText = manualInputText
+                    processTranscribedText()
+                } else {
+                    errorMessage = "Please enter text to process."
+                    appState = AppState.IDLE
+                }
             }
         }
     }
@@ -160,6 +182,25 @@ class VoiceViewModel(
         if (appState == AppState.LISTENING) {
             speechToTextService.stopListening()
             appState = AppState.IDLE
+        }
+    }
+
+    fun onInputModeChanged(newMode: InputMode) {
+        if (inputMode == InputMode.SPEAK && appState == AppState.LISTENING) {
+            speechToTextService.stopListening()
+        }
+        inputMode = newMode
+        appState = AppState.IDLE
+        transcribedText = ""
+        manualInputText = ""
+        clearResultTexts()
+        errorMessage = null
+    }
+
+    fun onManualInputTextChanged(newText: String) {
+        manualInputText = newText
+        if (appState == AppState.ERROR && newText.isNotBlank()) {
+            errorMessage = null
         }
     }
 
