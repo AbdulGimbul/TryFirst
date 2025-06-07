@@ -57,6 +57,8 @@ kotlin {
             implementation(libs.permissions.microphone)
             implementation(libs.konnectivity)
             implementation(libs.cmptoast)
+            implementation(libs.material.icons.core)
+            implementation(compose.materialIconsExtended)
         }
 
         commonTest.dependencies {

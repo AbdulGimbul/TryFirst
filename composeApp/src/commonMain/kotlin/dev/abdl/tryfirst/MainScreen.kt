@@ -17,10 +17,15 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -35,7 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -102,27 +109,26 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
                 )
             }
 
-            if (viewModel.transcribedText.isNotBlank()) {
-                Text("You said:", style = MaterialTheme.typography.titleMedium)
-                Text(viewModel.transcribedText, style = MaterialTheme.typography.bodyLarge)
-            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                ResultViewWithCopy(
+                    title = if (viewModel.inputMode == InputMode.SPEAK) "You said:" else "Input Text:",
+                    text = viewModel.transcribedText
+                )
 
-            if (viewModel.selectedLanguage == InputLanguage.ENGLISH) {
-                viewModel.refinedText?.let {
-                    Text("Refined:", style = MaterialTheme.typography.titleMedium)
-                    Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
-                }
-                viewModel.translatedToBahasaText?.let {
-                    Text(
-                        "Translated:",
-                        style = MaterialTheme.typography.titleMedium
+                if (viewModel.selectedLanguage == InputLanguage.ENGLISH) {
+                    ResultViewWithCopy(
+                        title = "Refined:",
+                        text = viewModel.refinedText
                     )
-                    Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
-                }
-            } else {
-                viewModel.translatedToEnglishText?.let {
-                    Text("Translated:", style = MaterialTheme.typography.titleMedium)
-                    Text(it.ifBlank { "-" }, style = MaterialTheme.typography.bodyLarge)
+                    ResultViewWithCopy(
+                        title = "Translated:",
+                        text = viewModel.translatedToBahasaText
+                    )
+                } else {
+                    ResultViewWithCopy(
+                        title = "Translated:",
+                        text = viewModel.translatedToEnglishText
+                    )
                 }
             }
 
@@ -165,6 +171,48 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
                     onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
                 ) {
                     Text(stringResource(Res.string.open_github))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ResultViewWithCopy(
+    title: String,
+    text: String?,
+    modifier: Modifier = Modifier
+) {
+    if (text.isNullOrBlank() || text == "-") return
+
+    val clipboardManager = LocalClipboardManager.current
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 4.dp, end = 4.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HorizontalDivider(modifier = Modifier.weight(1f).padding(vertical = 8.dp))
+            if (title != "You said:") {
+                IconButton(
+                    onClick = {
+                        clipboardManager.setText(AnnotatedString(text))
+                        showToast(message = "'${title.trimEnd(':')}' copied to clipboard")
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copy $title"
+                    )
                 }
             }
         }
