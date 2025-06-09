@@ -130,7 +130,7 @@ fun MainScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     ResultViewWithCopy(
-                        title = if (viewModel.inputMode == InputMode.SPEAK) "You said:" else "Input Text:",
+                        title = if (viewModel.inputMode == InputMode.SPEAK) "You said:" else "You wrote:",
                         text = viewModel.transcribedText
                     )
 
@@ -208,7 +208,7 @@ fun ResultViewWithCopy(
             verticalAlignment = Alignment.CenterVertically
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f).padding(vertical = 8.dp))
-            if (title != "You said:") {
+            if (title != "You said:" && title != "You wrote:") {
                 IconButton(
                     onClick = {
                         clipboardManager.setText(AnnotatedString(text))
