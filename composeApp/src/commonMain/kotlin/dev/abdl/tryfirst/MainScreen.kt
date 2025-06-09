@@ -10,27 +10,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,22 +41,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import multiplatform.network.cmptoast.showToast
-import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import tryfirst.composeapp.generated.resources.Res
-import tryfirst.composeapp.generated.resources.open_github
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
+fun MainScreen(
+    navController: NavController,
+    viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()
+) {
     val permissionsControllerFactory = rememberPermissionsControllerFactory()
     val permissionsController: PermissionsController =
         remember { permissionsControllerFactory.createPermissionsController() }
@@ -68,110 +69,115 @@ fun MainScreen(viewModel: VoiceViewModel = koinViewModel<VoiceViewModel>()) {
     val isRequestingPermission = viewModel.appState == AppState.REQUESTING_PERMISSION
     val uiEnabled = !isProcessingOrSpeaking && !isListening && !isRequestingPermission
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp).navigationBarsPadding()
-            .statusBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                actions = {
+                    IconButton(onClick = { navController.navigate("about") }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = "About"
+                        )
+                    }
+                }
+            )
+        },
+        modifier = Modifier.padding(16.dp)
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                "Try First:\nYour English Speaking Journey!",
-                style = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center)
-            )
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
 
-            InputModeSelector(
-                currentMode = viewModel.inputMode,
-                onModeSelected = { viewModel.onInputModeChanged(it) },
-                isEnabled = uiEnabled
-            )
-
-            LanguageSelector(
-                selectedLanguage = viewModel.selectedLanguage,
-                onLanguageSelected = { viewModel.onLanguageSelected(it) },
-                isEnabled = viewModel.appState == AppState.IDLE || viewModel.appState == AppState.ERROR
-            )
-
-            if (viewModel.inputMode == InputMode.TEXT) {
-                OutlinedTextField(
-                    value = viewModel.manualInputText,
-                    onValueChange = { viewModel.onManualInputTextChanged(it) },
-                    label = { Text("Write here") },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = uiEnabled,
-                    singleLine = false,
-                    maxLines = 5,
-                    minLines = 3
-                )
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                ResultViewWithCopy(
-                    title = if (viewModel.inputMode == InputMode.SPEAK) "You said:" else "Input Text:",
-                    text = viewModel.transcribedText
+                Text(
+                    "Try First:\nYour English Speaking Journey!",
+                    style = MaterialTheme.typography.headlineSmall.copy(textAlign = TextAlign.Center)
                 )
 
-                if (viewModel.selectedLanguage == InputLanguage.ENGLISH) {
-                    ResultViewWithCopy(
-                        title = "Refined:",
-                        text = viewModel.refinedText
-                    )
-                    ResultViewWithCopy(
-                        title = "Translated:",
-                        text = viewModel.translatedToBahasaText
-                    )
-                } else {
-                    ResultViewWithCopy(
-                        title = "Translated:",
-                        text = viewModel.translatedToEnglishText
+                InputModeSelector(
+                    currentMode = viewModel.inputMode,
+                    onModeSelected = { viewModel.onInputModeChanged(it) },
+                    isEnabled = uiEnabled
+                )
+
+                LanguageSelector(
+                    selectedLanguage = viewModel.selectedLanguage,
+                    onLanguageSelected = { viewModel.onLanguageSelected(it) },
+                    isEnabled = viewModel.appState == AppState.IDLE || viewModel.appState == AppState.ERROR
+                )
+
+                if (viewModel.inputMode == InputMode.TEXT) {
+                    OutlinedTextField(
+                        value = viewModel.manualInputText,
+                        onValueChange = { viewModel.onManualInputTextChanged(it) },
+                        label = { Text("Write here") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = uiEnabled,
+                        singleLine = false,
+                        maxLines = 5,
+                        minLines = 3
                     )
                 }
-            }
 
-            if (viewModel.errorMessage != null) {
-                Text("${viewModel.errorMessage}", color = MaterialTheme.colorScheme.error)
-            }
-        }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ResultViewWithCopy(
+                        title = if (viewModel.inputMode == InputMode.SPEAK) "You said:" else "Input Text:",
+                        text = viewModel.transcribedText
+                    )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            ActionButton(
-                appState = viewModel.appState,
-                inputMode = viewModel.inputMode,
-                isManualInputReady = viewModel.manualInputText.isNotBlank(),
-                onProcess = {
-                    if (!viewModel.connectivity.isConnected) {
-                        showToast(
-                            message = "Ups! there's no internet connection",
-                            backgroundColor = Color.Red
+                    if (viewModel.selectedLanguage == InputLanguage.ENGLISH) {
+                        ResultViewWithCopy(
+                            title = "Corrected:",
+                            text = viewModel.refinedText
+                        )
+                        ResultViewWithCopy(
+                            title = "Translated:",
+                            text = viewModel.translatedToBahasaText
                         )
                     } else {
-                        viewModel.handleProcessAction(permissionsController)
+                        ResultViewWithCopy(
+                            title = "Translated:",
+                            text = viewModel.translatedToEnglishText
+                        )
                     }
-                },
-                onStopListening = { viewModel.stopListeningAndProcess() }
-            )
-
-            val uriHandler = LocalUriHandler.current
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                TextButton(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        .widthIn(min = 200.dp),
-                    onClick = { uriHandler.openUri("https://github.com/abdulgimbul") },
-                ) {
-                    Text(stringResource(Res.string.open_github))
                 }
+
+                if (viewModel.errorMessage != null) {
+                    Text("${viewModel.errorMessage}", color = MaterialTheme.colorScheme.error)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                ActionButton(
+                    appState = viewModel.appState,
+                    inputMode = viewModel.inputMode,
+                    isManualInputReady = viewModel.manualInputText.isNotBlank(),
+                    onProcess = {
+                        if (!viewModel.connectivity.isConnected) {
+                            showToast(
+                                message = "Ups! there's no internet connection",
+                                backgroundColor = Color.Red
+                            )
+                        } else {
+                            viewModel.handleProcessAction(permissionsController)
+                        }
+                    },
+                    onStopListening = { viewModel.stopListeningAndProcess() }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

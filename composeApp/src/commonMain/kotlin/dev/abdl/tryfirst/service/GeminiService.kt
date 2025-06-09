@@ -26,8 +26,9 @@ class GeminiService {
     ): Result<ProcessedOutput> {
         if (originalLanguage.startsWith("en")) {
             val refinePrompt = """
-                Refine the following English narration to make it more polished, clear, natural, and engaging.
-                Return *only* the refined English text, and nothing else. Do not include any preamble, explanation, or markdown formatting.
+                Review the following English narration. If it is already well-spoken, clear, natural, and grammatically correct, return the original text *exactly as it is*. If it has errors or could be more polished and engaging, then refine it.
+
+                Return *only* the final English text (either the original or the refined version), and nothing else. Do not add any explanation or markdown formatting.
 
                 Input text: "$inputText"
             """.trimIndent()
@@ -40,7 +41,6 @@ class GeminiService {
                 if (textToTranslateToBahasa.isBlank()) {
                     return Result.failure(Exception("Refinement resulted in blank text, cannot proceed."))
                 }
-
 
                 val translateToBahasaPrompt = """
                     Translate the following English text accurately into fluent Bahasa Indonesia.
