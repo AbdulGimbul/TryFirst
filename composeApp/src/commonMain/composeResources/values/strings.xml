@@ -1,7 +1,16 @@
 <resources>
-    <string name="try_first">TryFirst</string>
+    <string name="app_name">TryFirst</string>
     <string name="open_github">Author's github</string>
     <string name="run">Run</string>
     <string name="stop">Stop</string>
     <string name="theme">Theme</string>
+
+    <string name="onboarding_title">Hai, Selamat Datang di TryFirst! 🎉</string>
+    <string name="onboarding_subtitle">Yuk, asah Bahasa Inggrismu dengan cara seru dan interaktif!</string>
+    <string name="onboarding_how_to_use">Gimana Cara Pakainya?</string>
+    <string name="onboarding_step_1">1. Pilih mau bicara (‘Speak’) atau nulis (‘Write’).</string>
+    <string name="onboarding_step_2">2. 'Practice with: English', TryFirst bakal bantu benerin kalimatnya + kasih terjemahan ke Indonesia.</string>
+    <string name="onboarding_step_3">3. 'Practice with: Bahasa Indonesia', TryFirst bakal translate ke Bahasa Inggris yang bener.</string>
+    <string name="onboarding_step_4">4. Tinggal dengerin atau baca hasilnya. Gampang, kan?</string>
+    <string name="onboarding_button_dismiss">Ready, Sekuyyy! 🚀</string>
 </resources>

@@ -1,30 +1,24 @@
-# Compose Multiplatform Application
+# TryFirst: Your AI English Speaking Buddy! 🇮🇩✨
 
-## Before running!
+Welcome to **TryFirst**! This is a fun, simple app designed to help you practice and improve your English speaking skills with a little help from our friendly AI. Whether you're just starting or looking to polish your fluency, TryFirst is here to be your practice partner.
 
-- check your system with [KDoctor](https://github.com/Kotlin/kdoctor)
-- install JDK 17 or higher on your machine
-- add `local.properties` file to the project root and set a path to Android SDK there
+The app is built with **Compose Multiplatform**, allowing it to run smoothly on both Android and iOS from a single codebase.
 
-### Android
+## What Can You Do with TryFirst?
 
-To run the application on android device/emulator:
+* **Practice Speaking in Two Languages**: You can speak in either **English** or **Bahasa Indonesia**.
+* **Get AI-Powered Feedback**:
+  * If you speak in **English**, the AI will refine your sentence to make it sound more natural and correct. It will also provide a translation in Bahasa Indonesia.
+  * If you speak in **Bahasa Indonesia**, the app will translate it into fluent English for you.
+* **Hear the Correct Pronunciation**: The app will read the final, corrected English text out loud, so you can hear how it's supposed to sound.
+* **Choose Your Input Style**: Not in the mood to talk? No problem! You can switch to **"Type" mode** and write your sentences instead.
 
-- open project in Android Studio and run imported android run configuration
+## How to Use
 
-To build the application bundle:
-
-- run `./gradlew :composeApp:assembleDebug`
-- find `.apk` file in `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
-  Run android UI tests on the connected device: `./gradlew :composeApp:connectedDebugAndroidTest`
-
-### iOS
-
-To run the application on iPhone device/simulator:
-
-- Open `iosApp/iosApp.xcproject` in Xcode and run standard configuration
-- Or
-  use [Kotlin Multiplatform Mobile plugin](https://plugins.jetbrains.com/plugin/14936-kotlin-multiplatform-mobile)
-  for Android Studio
-  Run iOS simulator UI tests: `./gradlew :composeApp:iosSimulatorArm64Test`
-
+1.  **Select Your Language**: Choose whether you want to speak in English or Bahasa Indonesia.
+2.  **Pick Your Mode**: Select "Bicara" (Speak) or "Ketik" (Type).
+3.  **Go!**:
+  * If you chose **Speak**, tap the big button and start talking. Tap again when you're done.
+  * If you chose **Type**, write your sentence in the text box and hit "Kirim" (Submit).
+4.  **See the Magic!**: Watch as the AI processes your input and gives you a refined version and/or a translation.
+5.  **Listen and Learn**: The app will automatically play the audio for the corrected English text. Listen, learn, and try again!

@@ -59,6 +59,8 @@ kotlin {
             implementation(libs.cmptoast)
             implementation(libs.material.icons.core)
             implementation(compose.materialIconsExtended)
+            api(libs.androidx.datastore)
+            api(libs.androidx.datastore.preferences)
         }
 
         commonTest.dependencies {

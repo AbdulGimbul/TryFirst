@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,12 +46,25 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import multiplatform.network.cmptoast.showToast
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+import tryfirst.composeapp.generated.resources.Res
+import tryfirst.composeapp.generated.resources.onboarding_button_dismiss
+import tryfirst.composeapp.generated.resources.onboarding_how_to_use
+import tryfirst.composeapp.generated.resources.onboarding_step_1
+import tryfirst.composeapp.generated.resources.onboarding_step_2
+import tryfirst.composeapp.generated.resources.onboarding_step_3
+import tryfirst.composeapp.generated.resources.onboarding_step_4
+import tryfirst.composeapp.generated.resources.onboarding_subtitle
+import tryfirst.composeapp.generated.resources.onboarding_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +76,11 @@ fun MainScreen(
     val permissionsController: PermissionsController =
         remember { permissionsControllerFactory.createPermissionsController() }
     BindEffect(permissionsController)
+
+    val showOnboarding by viewModel.showOnboarding.collectAsStateWithLifecycle()
+    if (showOnboarding) {
+        OnboardingGuide(onDismiss = { viewModel.onOnboardingCompleted() })
+    }
 
     val isProcessingOrSpeaking = viewModel.appState == AppState.PROCESSING ||
             viewModel.appState == AppState.SPEAKING
@@ -360,4 +379,57 @@ fun LanguageSelector(
             }
         }
     }
+}
+
+@Composable
+fun OnboardingGuide(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    stringResource(Res.string.onboarding_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    stringResource(Res.string.onboarding_subtitle),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.onboarding_how_to_use),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(stringResource(Res.string.onboarding_step_1), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.onboarding_step_2), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.onboarding_step_3), style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.onboarding_step_4), style = MaterialTheme.typography.bodyMedium)
+                }
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(Res.string.onboarding_button_dismiss))
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun OnboardPrev(){
+    OnboardingGuide({})
 }

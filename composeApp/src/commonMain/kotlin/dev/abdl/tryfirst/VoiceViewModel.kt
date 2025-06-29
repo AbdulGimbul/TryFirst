@@ -9,16 +9,21 @@ import com.plusmobileapps.konnectivity.Konnectivity
 import dev.abdl.tryfirst.service.GeminiService
 import dev.abdl.tryfirst.service.SpeechToTextService
 import dev.abdl.tryfirst.service.TextToSpeechService
+import dev.abdl.tryfirst.storage.AppSettings
 import dev.icerock.moko.permissions.DeniedException
 import dev.icerock.moko.permissions.Permission
 import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.microphone.RECORD_AUDIO
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class VoiceViewModel(
     private val speechToTextService: SpeechToTextService,
     private val textToSpeechService: TextToSpeechService,
     private val geminiService: GeminiService,
+    private val appSettings: AppSettings
 ) : ViewModel() {
 
     var appState by mutableStateOf(AppState.IDLE)
@@ -40,6 +45,19 @@ class VoiceViewModel(
         private set
     var manualInputText by mutableStateOf("")
         private set
+
+    val showOnboarding: StateFlow<Boolean> = appSettings.isFirstRunFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
+    fun onOnboardingCompleted() {
+        viewModelScope.launch {
+            appSettings.setFirstRunCompleted()
+        }
+    }
 
     fun handleProcessAction(permissionsController: PermissionsController) {
 
